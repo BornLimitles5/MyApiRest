@@ -5,3 +5,12 @@ a{
 ul{
     list-style: none;
 }
+
+.avatar-ctn {
+    background-color: orange;
+    text-align: center;
+}
+.avatar{
+    width: 65%;
+    border-radius: 50%;
+}

@@ -3,20 +3,9 @@ const express = require("express");
 const path = require('path')
 const mysql = require("mysql");
 const dotenv = require('dotenv');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
-const { check } = require('express-validator');
-
-exports.registerValidation = [
-    check('name', 'Name is required').notEmpty(),
-    check('email', 'Invalid email address').isEmail(),
-    check('password', 'Password is required').notEmpty(),
-    check('passwordConfirm').custom((value, { req }) => {
-        if (value !== req.body.password) {
-            throw new Error('Passwords do not match');
-        }
-        return true;
-    })
-];
 
 //Partial Avec Hbs
 const hbs = require('hbs');
@@ -46,6 +35,7 @@ app.use(express.static(publicDirectory));
 app.use(express.urlencoded({extended :false}));
 
 app.use(express.json());
+app.use(cookieParser());
 
 //Moteur de Template
 app.set('view engine' , 'hbs');
@@ -61,6 +51,8 @@ db.connect( (error) => {
 //Route
 app.use('/', require('./routes/pages'));
 app.use('/auth' , require('./routes/auth'));
+app.use('/profile' , require('./routes/pages'));
+
 
 //Server
 app.listen(3000 , () => {
