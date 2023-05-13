@@ -37,14 +37,24 @@
         {{else}}
             <a class="nav-link" href="/register">Register</a>
         {{/if}}
+        </li>
+        <li>
+        
+        {{#if isAdmin}}
+        <div class="navbar-brand">You have admin privileges</div>
+        {{/if}}
+        
+        
+
         
         </li>
     </ul>
     </div>
     {{#if user}}
-            <div class="navbar-brand">Logged in as {{user.name}}</div>
+            <div class="navbar-brand">Logged in as <a href="/admin">{{user.role}}</a> {{user.name}}</div>
         {{else}}
-        
+
         {{/if}}
+    
     
 </nav>

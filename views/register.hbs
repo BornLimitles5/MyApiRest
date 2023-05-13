@@ -1,47 +1,54 @@
 {{> header}}
-    {{#if message}}
-        <div class="container">
-            <h4 class="alert alert-danger mt-4">{{message}}</h4>
+
+{{#if message}}
+    <div class="container">
+        <h4 class="alert alert-danger mt-4">{{message}}</h4>
+    </div>
+{{/if}}
+{{#if messages}}
+    <div class="container">
+        <h4 class="alert alert-success mt-4">{{messages}}</h4>
+    </div>
+{{/if}}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            Register Form
         </div>
-            
-        {{/if}}
-        {{#if messages}}
-        <div class="container">
-            <h4 class="alert alert-success  mt-4">{{messages}}</h4>
-        </div>
-            
-        {{/if}}
-    <div class="container mt-4">
-        <div class="card">
-            <div class="card-header">
-                Register Form
-            </div>
-            <div class="card-body">
-                <form action="/auth/register" method="POST">
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" class="form-control" id="name" name="name">
-                    </div>
+        <div class="card-body">
+            <form action="/auth/register" method="POST">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" name="name">
+                </div>
 
-                    <div class="form-group">
-                        <label for="email">Adresse E-mail</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
+                <div class="form-group">
+                    <label for="email">Adresse E-mail</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
 
-                    <div class="form-group">
-                        <label for="password">Mot de passe</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    {{#if errors}}
+                        {{#each errors}}
+                            {{#if (eq location 'password')}}
+                                <small class="text-danger">{{this.msg}}</small>
+                            {{/if}}
+                        {{/each}}
+                    {{/if}}
+                </div>
 
-                    <div class="form-group">
-                        <label for="passwordConfirm">Confirmez Votre Mot de passe</label>
-                        <input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm" required>
-                    </div>
+                <div class="form-group">
+                    <label for="passwordConfirm">Confirmez Votre Mot de passe</label>
+                    <input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm" required>
+                </div>
 
-                    <button type="submit" class="btn btn-primary">Register User</button>
-                </form>
-            </div>
+                <button type="submit" class="btn btn-primary">Register User</button>
+            </form>
         </div>
     </div>
+</div>
 
 {{> footer}}

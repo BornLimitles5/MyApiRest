@@ -5,6 +5,11 @@ const mysql = require("mysql");
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const handlebars = require('handlebars');
+const handlebarsHelpers = require('handlebars-helpers');
+
+// Register all helpers provided by handlebars-helpers
+handlebarsHelpers({ handlebars });
 
 
 //Partial Avec Hbs

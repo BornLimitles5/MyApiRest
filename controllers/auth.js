@@ -23,7 +23,7 @@ exports.login = async (req , res) =>{
         }
 
         db.query('SELECT * FROM users WHERE email = ?' , [email] , async (error , results) => {
-            if( !results || !(await bcryptjs.compare( password, results[0].password) ) ){
+            if( !results || results.length === 0 ||!(await bcryptjs.compare( password, results[0].password) ) ){
                 res.status(401).render("login" , {
                     message:'Email ou Mots de Passe Incorrect '
                 })
@@ -52,6 +52,8 @@ exports.login = async (req , res) =>{
     }
 }
 
+const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.*\s).{12,}$/;
 exports.register = async (req, res) => {
     const { name, email, password, passwordConfirm } = req.body;
 
@@ -64,11 +66,25 @@ exports.register = async (req, res) => {
         });
     }
 
+    // Validate email format using regex
+    if (!emailRegex.test(email)) {
+        return res.status(422).render('register', {
+            message: 'Invalid email format',
+        });
+    }
+
+    // Validate password strength using regex
+    if (!passwordRegex.test(password)) {
+        return res.status(422).render('register', {
+            message: 'Password must contain at least 12 characters, one uppercase letter, one lowercase letter,one special character , and one digit',
+        });
+    }
+
     try {
         const existingUser = await db.query('SELECT email FROM users WHERE email = ?', [email]);
         if (existingUser.length > 0) {
             return res.render('register', {
-                message: 'Cette Email est déja utilisée'
+                message: 'Cette Email est déjà utilisée'
             });
         }
 
@@ -83,7 +99,7 @@ exports.register = async (req, res) => {
         const result = await db.query('INSERT INTO users SET ?', newUser);
 
         return res.render('register', {
-            message: 'Compte Enregistré Avec Succès'
+            messages: 'Compte Enregistré Avec Succès'
         });
 
     } catch (error) {
@@ -129,4 +145,137 @@ exports.logout = async (req, res) => {
     });
 
     res.status(200).redirect('/');
+};
+
+exports.isAdmin = async (req, res, next) => {
+    if (req.cookies.jwt) {
+        try {
+            // Verify the token
+            const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET);
+            
+            // Check if the user still exists
+            db.query('SELECT * FROM users WHERE id = ?', [decoded.id], (error, result) => {
+                if (!result) {
+                    return next();
+                }
+
+                // Assign user data to req.user
+                req.user = result[0];
+
+                // Check if the user has the role admin
+                if (req.user.role === 'admin') {
+                    req.isAdmin = true;
+                } else {
+                    req.isAdmin = false;
+                }
+
+                return next();
+            });
+        } catch (error) {
+            console.log(error);
+            return next();
+        }
+    } else {
+        next();
+    }
+};
+
+exports.update = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+  
+      if (!email && !password) {
+        return res.status(400).render('update', {
+          message: 'Veuillez remplir au moins un champ',
+        });
+      }
+  
+      try {
+        const decoded = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET);
+        const userId = decoded.id;
+  
+        db.query('SELECT * FROM users WHERE id = ?', [userId], async (error, result) => {
+          if (error) {
+            return res.status(500).render('update', {
+              message: 'Erreur lors de la mise à jour',
+            });
+          } else {
+            if (!result) {
+              return res.status(404).render('update', {
+                message: 'Utilisateur introuvable',
+              });
+            }
+  
+            let updateQuery = '';
+            const updateValues = [];
+  
+            if (email) {
+              updateQuery += 'email = ?,';
+              updateValues.push(email);
+            }
+  
+            if (password) {
+              updateQuery += 'password = ?,';
+              updateValues.push(password);
+            }
+  
+            // Remove the trailing comma from updateQuery
+            updateQuery = updateQuery.slice(0, -1);
+  
+            // Add the userId to updateValues
+            updateValues.push(userId);
+  
+            // Perform the update operation in the database
+            // Replace the code below with your actual update logic
+            db.query('UPDATE users SET ' + updateQuery + ' WHERE id = ?', updateValues, (error, result) => {
+              if (error) {
+                return res.status(500).render('update', {
+                  message: 'Erreur lors de la mise à jour',
+                });
+              } else {
+                return res.status(200).render('update', {
+                  message: 'Mise à jour réussie',
+                });
+              }
+            });
+          }
+        });
+      } catch (error) {
+        return res.status(401).render('update', {
+          message: 'Accès non autorisé',
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+};
+
+exports.delete = async (req, res) => {
+    try {
+      // Get the user ID from the decoded JWT token
+      const decoded = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET);
+      const userId = decoded.id;
+  
+      // Delete the user from the database
+      db.query('DELETE FROM users WHERE id = ?', [userId], (error, result) => {
+        if (error) {
+          return res.status(500).render('delete', {
+            message: 'Error deleting account',
+          });
+        } else {
+          // Clear the JWT cookie and redirect to the login page
+          res.cookie('jwt', '', {
+            expires: new Date(0),
+            httpOnly: true,
+          });
+          return res.status(200).render('delete', {
+            message: 'Account successfully deleted',
+          });
+        }
+      });
+    } catch (error) {
+      return res.status(401).render('delete', {
+        message: 'Unauthorized access',
+      });
+    }
 };
