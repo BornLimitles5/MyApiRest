@@ -1,0 +1,18 @@
+{{> adminHeader}}
+
+{{#if message}}
+<div class="container">
+<h4 class="alert alert-success mt-4">{{message}}</h4>
+</div>
+{{/if}}
+<div class="container">
+  <h2>Delete User {{userId}}</h2>
+  <div class="alert alert-warning mt-4">
+    <p><strong>Warning:</strong> This action cannot be undone. Are you sure you want to delete the user?</p>
+  </div>
+  <form action="/admin/{{userId}}/delete" method="POST">
+    <button type="submit" class="btn btn-danger">Delete</button>
+  </form>
+</div>
+
+{{> footer}}

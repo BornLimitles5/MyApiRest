@@ -1,0 +1,28 @@
+{{> header }}
+
+<div class="container mt-4">
+    <h2>Admin Dashboard</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+            <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.email}}</td>
+                <td>                 
+                    <a href="/admin/{{this.id}}/edit" class="btn btn-primary">Edit</a>
+                    <a href="/admin/{{this.id}}/delete" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+{{> footer}}

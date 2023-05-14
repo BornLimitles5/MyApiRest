@@ -11,6 +11,13 @@ router.get('/logout' , authController.logout);
 
 router.post('/update' , authController.update);
 
-router.post('/delete', authController.delete);
+router.post('/admin/edit/:id', authController.AdminEdit);
+
+
+
+
+
+
+
 
 module.exports = router;

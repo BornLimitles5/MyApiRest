@@ -18,9 +18,11 @@ const fs = require('fs');
 
 const header = fs.readFileSync('./views/header.hbs', 'utf8');
 const footer = fs.readFileSync('./views/footer.hbs', 'utf8');
+const adminHeader = fs.readFileSync('./views/admin/adminHeader.hbs', 'utf8');
 
 hbs.registerPartial('header', header);
 hbs.registerPartial('footer', footer);
+hbs.registerPartial('adminHeader', adminHeader);
 //Fin Partial
 
 dotenv.config({ path: './.env'})
